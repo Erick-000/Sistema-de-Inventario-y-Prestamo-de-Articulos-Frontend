@@ -35,11 +35,17 @@ function LoginPageInner() {
       const res = await apiFetch<{
         token: string;
         user: { id: string; role: string; name: string; email: string };
+        debeCambiarContrasena: boolean;
       }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email: normalizedEmail, password }),
       });
       setSession(res.token, res.user);
+
+      if (res.debeCambiarContrasena) {
+        router.push("/app/cambiar-contrasena");
+        return;
+      }
       const next = searchParams.get("next");
       if (next) {
         router.push(decodeURIComponent(next));
