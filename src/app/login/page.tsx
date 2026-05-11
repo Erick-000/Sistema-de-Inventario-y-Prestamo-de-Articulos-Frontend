@@ -20,10 +20,12 @@ function LoginPageInner() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail.endsWith("@miuniclaretiana.edu.co")) {
@@ -54,8 +56,10 @@ function LoginPageInner() {
 
       router.push("/app/dashboard");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Credenciales inválidas";
+      const msg = e instanceof Error ? e.message : "Credenciales invalidas";
       setError(msg);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -116,9 +120,10 @@ function LoginPageInner() {
 
           <button
             type="submit"
-            className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl bg-uniclaretiana-yellow text-sm font-semibold text-uniclaretiana-black transition-opacity hover:opacity-90"
+            disabled={loading}
+            className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-xl bg-uniclaretiana-yellow text-sm font-semibold text-uniclaretiana-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Ingresar
+            {loading ? "Ingresando..." : "Ingresar"}
           </button>
 
           {error ? (
