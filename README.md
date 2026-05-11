@@ -1,7 +1,7 @@
 # Sistema de Inventario y Préstamo de Artículos (Frontend)
 
 <p align="center">
-  <img src="public/unicalretiana/image.png" alt="Uniclaretiana" width="160" />
+  <img src="public/unicalretiana/favicon.png" alt="Uniclaretiana" width="120" />
 </p>
 
 Aplicación web para la gestión de inventario, préstamos de artículos y reservas de salones.
