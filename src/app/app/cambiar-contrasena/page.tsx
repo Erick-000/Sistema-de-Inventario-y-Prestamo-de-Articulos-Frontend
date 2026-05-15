@@ -60,7 +60,7 @@ export default function CambiarContrasenaPage() {
       <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-7 shadow-sm">
         <h2 className="mb-1 text-lg font-semibold text-black">Cambiar contrasena</h2>
         <p className="mb-5 text-sm text-black/60">
-          Por seguridad, debes cambiar tu contrasena antes de continuar.
+          Por seguridad, te recomendamos cambiar tu contrasena antes de continuar.
         </p>
 
         <form onSubmit={submit} className="space-y-4" autoComplete="off">
