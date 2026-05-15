@@ -83,10 +83,29 @@ function readImportNumber(row: Record<string, unknown>, names: string[], rowNumb
 
 function normalizeImportStatus(value: string, rowNumber: number): InventoryObjectStatus {
   const normalized = (value || "OPERATIVO").trim().toUpperCase();
+  if (
+    normalized === "DISPONIBLE" ||
+    normalized === "ACTIVO" ||
+    normalized === "BUENO" ||
+    normalized === "FUNCIONAL"
+  ) {
+    return "OPERATIVO";
+  }
+  if (
+    normalized === "DAÑADO" ||
+    normalized === "DANADO" ||
+    normalized === "REPARACION" ||
+    normalized === "REPARACIÓN"
+  ) {
+    return "MANTENIMIENTO";
+  }
+  if (normalized === "RETIRADO" || normalized === "INACTIVO") {
+    return "BAJA";
+  }
   if (normalized === "OPERATIVO" || normalized === "MANTENIMIENTO" || normalized === "BAJA") {
     return normalized;
   }
-  throw new Error(`Fila ${rowNumber}: Estado inválido. Usa OPERATIVO, MANTENIMIENTO o BAJA.`);
+  throw new Error(`Fila ${rowNumber}: Estado inválido. Usa OPERATIVO, MANTENIMIENTO, BAJA o Disponible.`);
 }
 
 export default function InventarioPage() {
