@@ -61,12 +61,45 @@ function parseNumberInput(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function readImportCell(row: Record<string, unknown>, names: string[]) {
+  for (const name of names) {
+    const value = row[name];
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      return String(value).trim();
+    }
+  }
+  return "";
+}
+
+function readImportNumber(row: Record<string, unknown>, names: string[], rowNumber: number) {
+  const raw = readImportCell(row, names);
+  if (!raw) return 0;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`Fila ${rowNumber}: ${names[0]} debe ser un número mayor o igual a 0.`);
+  }
+  return Math.floor(value);
+}
+
+function normalizeImportStatus(value: string, rowNumber: number): InventoryObjectStatus {
+  const normalized = (value || "OPERATIVO").trim().toUpperCase();
+  if (normalized === "OPERATIVO" || normalized === "MANTENIMIENTO" || normalized === "BAJA") {
+    return normalized;
+  }
+  throw new Error(`Fila ${rowNumber}: Estado inválido. Usa OPERATIVO, MANTENIMIENTO o BAJA.`);
+}
+
 export default function InventarioPage() {
   const { state, reload } = useAppState();
   const [category, setCategory] = useState<string>("Todos");
   const [query, setQuery] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [importFeedback, setImportFeedback] = useState<{
+    title: string;
+    message: string;
+    tone: "success" | "error";
+  } | null>(null);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -468,27 +501,66 @@ export default function InventarioPage() {
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
 
       if (!rows || rows.length === 0) {
-        alert("El archivo está vacío o no se pudo leer correctamente.");
+        setImportFeedback({
+          title: "Archivo vacío",
+          message: "El archivo está vacío o no se pudo leer correctamente.",
+          tone: "error",
+        });
         return;
       }
 
-      const formatted = rows.map((row) => ({
-        nombre: String(row["Nombre"] ?? row["nombre"] ?? ""),
-        serial: row["Serial"] || row["serial"] ? String(row["Serial"] ?? row["serial"]) : undefined,
-        categoria: String(row["Categoría"] ?? row["categoria"] ?? row["Categoria"] ?? "Otros"),
-        ubicacion: row["Ubicación"] || row["ubicacion"] ? String(row["Ubicación"] ?? row["ubicacion"]) : undefined,
-        responsable: row["Responsable"] || row["responsable"] ? String(row["Responsable"] ?? row["responsable"]) : undefined,
-        notas: row["Notas"] || row["notas"] ? String(row["Notas"] ?? row["notas"]) : undefined,
-        estadoObjeto: row["Estado"] ?? row["estadoObjeto"] ?? "OPERATIVO",
-        stockTotal: Number(row["Stock Total"] ?? row["stockTotal"] ?? 0),
-        stockDisponible: Number(row["Stock Disponible"] ?? row["stockDisponible"] ?? 0),
-        stockMinimo: Number(row["Stock Mínimo"] ?? row["stockMinimo"] ?? 0),
-        activo: true,
-      })).filter((item) => item.nombre && item.nombre.trim() !== "");
+      const formatted = rows.map((row, index) => {
+        const rowNumber = index + 2;
+        const nombre = readImportCell(row, ["Nombre", "nombre"]);
+        const serial = readImportCell(row, ["Serial", "serial", "Código", "Codigo", "codigo"]);
+        const categoria = readImportCell(row, ["Categoría", "Categoria", "categoria"]) || "Otros";
+        const ubicacion = readImportCell(row, ["Ubicación", "Ubicacion", "ubicacion"]);
+        const responsable = readImportCell(row, ["Responsable", "responsable"]);
+        const notas = readImportCell(row, ["Notas", "notas"]);
+        const estadoObjeto = normalizeImportStatus(
+          readImportCell(row, ["Estado", "estadoObjeto", "estado"]),
+          rowNumber,
+        );
+        const stockTotal = readImportNumber(row, ["Stock Total", "stockTotal"], rowNumber);
+        const stockDisponible = readImportNumber(row, ["Stock Disponible", "stockDisponible"], rowNumber);
+        const stockMinimo = readImportNumber(row, ["Stock Mínimo", "Stock Minimo", "stockMinimo"], rowNumber);
+
+        if (stockDisponible > stockTotal) {
+          throw new Error(`Fila ${rowNumber}: Stock Disponible no puede ser mayor que Stock Total.`);
+        }
+
+        return {
+          nombre,
+          serial: serial || undefined,
+          categoria,
+          ubicacion: ubicacion || undefined,
+          responsable: responsable || undefined,
+          notas: notas || undefined,
+          estadoObjeto,
+          stockTotal,
+          stockDisponible,
+          stockMinimo,
+          activo: true,
+        };
+      }).filter((item) => item.nombre && item.nombre.trim() !== "");
 
       if (formatted.length === 0) {
-        alert("No se encontraron registros válidos para importar.");
+        setImportFeedback({
+          title: "Sin registros válidos",
+          message: "No se encontraron artículos con nombre para importar.",
+          tone: "error",
+        });
         return;
+      }
+
+      const repeatedSerials = formatted
+        .map((item) => item.serial?.trim())
+        .filter((serial): serial is string => Boolean(serial));
+      const duplicatedSerial = repeatedSerials.find(
+        (serial, index) => repeatedSerials.indexOf(serial) !== index,
+      );
+      if (duplicatedSerial) {
+        throw new Error(`El serial ${duplicatedSerial} está repetido en el archivo.`);
       }
 
       await apiFetch("/api/articles/bulk", {
@@ -497,10 +569,18 @@ export default function InventarioPage() {
       });
 
       await reload();
-      alert(`Se importaron ${formatted.length} artículos correctamente.`);
+      setImportFeedback({
+        title: "Importación completada",
+        message: `Se importaron ${formatted.length} artículos correctamente.`,
+        tone: "success",
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Revisa el formato del archivo";
-      alert("Error al importar: " + message);
+      setImportFeedback({
+        title: "Error al importar",
+        message,
+        tone: "error",
+      });
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -657,6 +737,30 @@ export default function InventarioPage() {
           ))}
         </div>
       )}
+
+      <Modal
+        open={!!importFeedback}
+        title={importFeedback?.title ?? "Importación"}
+        onClose={() => setImportFeedback(null)}
+        footer={
+          <Button variant="secondary" onClick={() => setImportFeedback(null)}>
+            Entendido
+          </Button>
+        }
+      >
+        {importFeedback ? (
+          <div
+            className={
+              importFeedback.tone === "success"
+                ? "rounded-xl border border-emerald-500/30 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"
+                : "rounded-xl border border-red-500/30 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+            }
+          >
+            {importFeedback.message}
+          </div>
+        ) : null}
+      </Modal>
+
       <FormModal
         open={createOpen}
         title="Nuevo artículo"
