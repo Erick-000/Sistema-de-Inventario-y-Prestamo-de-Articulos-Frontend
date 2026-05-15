@@ -216,7 +216,7 @@ function SolicitarContent() {
           <div className="rounded-2xl border-2 border-uniclaretiana-yellow/50 bg-white p-6 shadow-sm">
             <div className="mb-5 text-base font-bold text-black">Nueva solicitud de préstamo de artículo</div>
 
-            <form onSubmit={submitArticle} className="space-y-4">
+            <form onSubmit={submitArticle} className="space-y-4" autoComplete="off">
               {/* Dates */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -279,6 +279,7 @@ function SolicitarContent() {
                       </div>
                       <div className="col-span-3">
                         <input type="number" className={INPUT} min={1} max={maxQty} value={it.quantity}
+                          autoComplete="off"
                           onChange={(e) => { const n = [...items]; n[idx] = { ...n[idx], quantity: e.target.value }; setItems(n); }}
                           placeholder="Cant." required />
                       </div>
@@ -348,7 +349,7 @@ function SolicitarContent() {
             {loadingRooms ? (
               <p className="text-sm text-black/50">Cargando salones...</p>
             ) : (
-              <form onSubmit={submitRoom} className="space-y-4">
+              <form onSubmit={submitRoom} className="space-y-4" autoComplete="off">
                 {/* Salon selector */}
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold tracking-widest text-black/60">SALÓN</label>

@@ -394,6 +394,8 @@ export default function UsuariosPage() {
             </span>
             <input
               type="password"
+              name="inventario-teacher-reset-secret"
+              autoComplete="new-password"
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               minLength={6}

@@ -63,12 +63,13 @@ export default function CambiarContrasenaPage() {
           Por seguridad, debes cambiar tu contrasena antes de continuar.
         </p>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="space-y-4" autoComplete="off">
           <div>
             <label className="mb-1 block text-sm font-medium text-black/80">
               Contrasena actual
             </label>
             <input type="password" value={actual} onChange={(e) => setActual(e.target.value)} required
+              name="inventario-current-secret" autoComplete="new-password"
               className="w-full rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-black/40"
               placeholder="Contrasena temporal" />
           </div>
@@ -78,6 +79,7 @@ export default function CambiarContrasenaPage() {
               Nueva contrasena
             </label>
             <input type="password" value={nueva} onChange={(e) => setNueva(e.target.value)} required minLength={6}
+              name="inventario-new-secret" autoComplete="new-password"
               className="w-full rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-black/40"
               placeholder="Minimo 6 caracteres" />
           </div>
@@ -87,6 +89,7 @@ export default function CambiarContrasenaPage() {
               Confirmar nueva contrasena
             </label>
             <input type="password" value={confirmar} onChange={(e) => setConfirmar(e.target.value)} required minLength={6}
+              name="inventario-confirm-secret" autoComplete="new-password"
               className="w-full rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-black/40"
               placeholder="Repite la nueva contrasena" />
           </div>

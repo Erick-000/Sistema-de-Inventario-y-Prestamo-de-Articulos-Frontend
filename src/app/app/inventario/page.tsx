@@ -55,6 +55,12 @@ function addHoursToTime(value: string, hours: number) {
   return minutesToTime(minutes + hours * 60);
 }
 
+function parseNumberInput(value: string) {
+  if (value.trim() === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 export default function InventarioPage() {
   const { state, reload } = useAppState();
   const [category, setCategory] = useState<string>("Todos");
@@ -81,12 +87,12 @@ export default function InventarioPage() {
   const [formObjectStatus, setFormObjectStatus] = useState<InventoryObjectStatus>(
     "OPERATIVO",
   );
-  const [formTotal, setFormTotal] = useState("0");
-  const [formAvailable, setFormAvailable] = useState("0");
-  const [formMinStock, setFormMinStock] = useState("0");
+  const [formTotal, setFormTotal] = useState("");
+  const [formAvailable, setFormAvailable] = useState("");
+  const [formMinStock, setFormMinStock] = useState("");
 
-  const [adjustTotal, setAdjustTotal] = useState("0");
-  const [adjustAvailable, setAdjustAvailable] = useState("0");
+  const [adjustTotal, setAdjustTotal] = useState("");
+  const [adjustAvailable, setAdjustAvailable] = useState("");
   const [categories, setCategories] = useState<ArticleCategoryDto[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [history, setHistory] = useState<
@@ -231,11 +237,10 @@ export default function InventarioPage() {
   const createDisabled = useMemo(() => {
     if (!formName.trim()) return true;
     if (!effectiveFormCategory.trim()) return true;
-    const total = Number(formTotal);
-    const available = Number(formAvailable);
-    const minStock = Number(formMinStock);
-    if (!Number.isFinite(total) || !Number.isFinite(available)) return true;
-    if (!Number.isFinite(minStock)) return true;
+    const total = parseNumberInput(formTotal);
+    const available = parseNumberInput(formAvailable);
+    const minStock = parseNumberInput(formMinStock);
+    if (total === null || available === null || minStock === null) return true;
     if (total < 0 || available < 0) return true;
     if (minStock < 0) return true;
     if (available > total) return true;
@@ -246,11 +251,10 @@ export default function InventarioPage() {
     if (!selected) return true;
     if (!formName.trim()) return true;
     if (!effectiveFormCategory.trim()) return true;
-    const total = Number(formTotal);
-    const available = Number(formAvailable);
-    const minStock = Number(formMinStock);
-    if (!Number.isFinite(total) || !Number.isFinite(available)) return true;
-    if (!Number.isFinite(minStock)) return true;
+    const total = parseNumberInput(formTotal);
+    const available = parseNumberInput(formAvailable);
+    const minStock = parseNumberInput(formMinStock);
+    if (total === null || available === null || minStock === null) return true;
     if (total < 0 || available < 0) return true;
     if (minStock < 0) return true;
     if (available > total) return true;
@@ -259,9 +263,9 @@ export default function InventarioPage() {
 
   const adjustDisabled = useMemo(() => {
     if (!selected) return true;
-    const total = Number(adjustTotal);
-    const available = Number(adjustAvailable);
-    if (!Number.isFinite(total) || !Number.isFinite(available)) return true;
+    const total = parseNumberInput(adjustTotal);
+    const available = parseNumberInput(adjustAvailable);
+    if (total === null || available === null) return true;
     if (total < 0 || available < 0) return true;
     if (available > total) return true;
     return false;
@@ -276,9 +280,9 @@ export default function InventarioPage() {
     setFormResponsible("");
     setFormNotes("");
     setFormObjectStatus("OPERATIVO");
-    setFormTotal("0");
-    setFormAvailable("0");
-    setFormMinStock("0");
+    setFormTotal("");
+    setFormAvailable("");
+    setFormMinStock("");
     setCreateOpen(true);
   }
 
@@ -402,9 +406,9 @@ export default function InventarioPage() {
           responsable: formResponsible.trim() ? formResponsible.trim() : undefined,
           notas: formNotes.trim() ? formNotes.trim() : undefined,
           estadoObjeto: formObjectStatus,
-          stockTotal: Math.max(0, Math.floor(Number(formTotal))),
-          stockDisponible: Math.max(0, Math.floor(Number(formAvailable))),
-          stockMinimo: Math.max(0, Math.floor(Number(formMinStock))),
+          stockTotal: Math.max(0, Math.floor(parseNumberInput(formTotal) ?? 0)),
+          stockDisponible: Math.max(0, Math.floor(parseNumberInput(formAvailable) ?? 0)),
+          stockMinimo: Math.max(0, Math.floor(parseNumberInput(formMinStock) ?? 0)),
           activo: true,
         }),
       });
@@ -426,9 +430,9 @@ export default function InventarioPage() {
           responsable: formResponsible.trim() ? formResponsible.trim() : undefined,
           notas: formNotes.trim() ? formNotes.trim() : undefined,
           estadoObjeto: formObjectStatus,
-          stockTotal: Math.max(0, Math.floor(Number(formTotal))),
-          stockDisponible: Math.max(0, Math.floor(Number(formAvailable))),
-          stockMinimo: Math.max(0, Math.floor(Number(formMinStock))),
+          stockTotal: Math.max(0, Math.floor(parseNumberInput(formTotal) ?? 0)),
+          stockDisponible: Math.max(0, Math.floor(parseNumberInput(formAvailable) ?? 0)),
+          stockMinimo: Math.max(0, Math.floor(parseNumberInput(formMinStock) ?? 0)),
         }),
       });
       setEditOpen(false);
@@ -442,8 +446,8 @@ export default function InventarioPage() {
       await apiFetch(`/api/articles/${selectedId}`, {
         method: "PATCH",
         body: JSON.stringify({
-          stockTotal: Math.max(0, Math.floor(Number(adjustTotal))),
-          stockDisponible: Math.max(0, Math.floor(Number(adjustAvailable))),
+          stockTotal: Math.max(0, Math.floor(parseNumberInput(adjustTotal) ?? 0)),
+          stockDisponible: Math.max(0, Math.floor(parseNumberInput(adjustAvailable) ?? 0)),
         }),
       });
       setAdjustOpen(false);
@@ -769,6 +773,8 @@ export default function InventarioPage() {
                 step={1}
                 value={formTotal}
                 onChange={(e) => setFormTotal(e.target.value)}
+                autoComplete="off"
+                placeholder="Ej: 10"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -780,6 +786,8 @@ export default function InventarioPage() {
                 step={1}
                 value={formAvailable}
                 onChange={(e) => setFormAvailable(e.target.value)}
+                autoComplete="off"
+                placeholder="Ej: 10"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -793,6 +801,8 @@ export default function InventarioPage() {
               step={1}
               value={formMinStock}
               onChange={(e) => setFormMinStock(e.target.value)}
+              autoComplete="off"
+              placeholder="Ej: 2"
               className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
             />
           </label>
@@ -914,6 +924,7 @@ export default function InventarioPage() {
                 step={1}
                 value={formTotal}
                 onChange={(e) => setFormTotal(e.target.value)}
+                autoComplete="off"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -925,6 +936,7 @@ export default function InventarioPage() {
                 step={1}
                 value={formAvailable}
                 onChange={(e) => setFormAvailable(e.target.value)}
+                autoComplete="off"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -938,6 +950,7 @@ export default function InventarioPage() {
               step={1}
               value={formMinStock}
               onChange={(e) => setFormMinStock(e.target.value)}
+              autoComplete="off"
               className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
             />
           </label>
@@ -967,6 +980,7 @@ export default function InventarioPage() {
                 step={1}
                 value={adjustTotal}
                 onChange={(e) => setAdjustTotal(e.target.value)}
+                autoComplete="off"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -978,6 +992,7 @@ export default function InventarioPage() {
                 step={1}
                 value={adjustAvailable}
                 onChange={(e) => setAdjustAvailable(e.target.value)}
+                autoComplete="off"
                 className="h-10 w-full rounded-xl border border-black/10 bg-white px-3 text-black outline-none focus:border-black/30"
               />
             </label>
@@ -1093,6 +1108,7 @@ export default function InventarioPage() {
                       step={15}
                       value={item.maxLoanMinutes ?? 240}
                       disabled={item.prestable === false}
+                      autoComplete="off"
                       onChange={(e) => {
                         void updateCategoryRules(item._id, {
                           maxLoanMinutes: Number(e.target.value),
@@ -1257,6 +1273,7 @@ export default function InventarioPage() {
               max={loanItem?.available ?? 1}
               value={loanQty}
               onChange={(e) => setLoanQty(e.target.value)}
+              autoComplete="off"
             />
           </div>
 

@@ -87,7 +87,7 @@ function LoginPageInner() {
           </div>
         </div>
 
-        <form onSubmit={submit} className="space-y-4">
+        <form onSubmit={submit} className="space-y-4" autoComplete="off">
           <div>
             <label className="mb-1.5 block text-xs font-semibold tracking-widest text-black/60">
               CORREO INSTITUCIONAL
@@ -96,6 +96,11 @@ function LoginPageInner() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
+              name="inventario-login-user"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
               placeholder="usuario@miuniclaretiana.edu.co"
               className="h-11 w-full rounded-xl border border-black/10 bg-white px-4 text-sm text-black outline-none focus:border-uniclaretiana-yellow"
               pattern="^[^\s@]+@miuniclaretiana\.edu\.co$"
@@ -112,6 +117,8 @@ function LoginPageInner() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
+              name="inventario-login-secret"
+              autoComplete="new-password"
               placeholder="••••••••"
               className="h-11 w-full rounded-xl border border-black/10 bg-white px-4 text-sm text-black outline-none focus:border-uniclaretiana-yellow"
               required

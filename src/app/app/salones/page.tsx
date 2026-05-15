@@ -723,10 +723,11 @@ export default function SalonesPage() {
                   {editingRoomId ? "Editar salón" : "Crear salón"}
                 </h2>
 
-                <form className="grid grid-cols-1 gap-3" onSubmit={submitRoom}>
+                <form className="grid grid-cols-1 gap-3" onSubmit={submitRoom} autoComplete="off">
                   <input
                     className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
                     type="text"
+                    autoComplete="off"
                     placeholder="Nombre"
                     value={roomForm.nombre}
                     onChange={(e) => setRoomForm((p) => ({ ...p, nombre: e.target.value }))}
@@ -736,6 +737,7 @@ export default function SalonesPage() {
                   <input
                     className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
                     type="text"
+                    autoComplete="off"
                     placeholder="Ubicación (opcional)"
                     value={roomForm.ubicacion}
                     onChange={(e) => setRoomForm((p) => ({ ...p, ubicacion: e.target.value }))}
@@ -748,6 +750,7 @@ export default function SalonesPage() {
                     <input
                       className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
                       type="number"
+                      autoComplete="off"
                       min={0}
                       step={1}
                       placeholder="Ej: 30"
@@ -852,7 +855,7 @@ export default function SalonesPage() {
                 <p className="mb-3 text-xs text-black/50">
                   Úsalo para mantenimiento, eventos o cierres institucionales.
                 </p>
-                <form className="grid grid-cols-1 gap-3" onSubmit={submitBlock}>
+                <form className="grid grid-cols-1 gap-3" onSubmit={submitBlock} autoComplete="off">
                   <select
                     className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
                     value={blockForm.salonId}
