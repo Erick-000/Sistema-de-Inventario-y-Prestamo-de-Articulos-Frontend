@@ -95,7 +95,7 @@ export default function SalonesPage() {
   const [roomForm, setRoomForm] = useState<{
     nombre: string;
     ubicacion: string;
-    capacidad: number;
+    capacidad: number | "";
     descripcion: string;
     elementos: string;
     disponibleDesde: string;
@@ -104,7 +104,7 @@ export default function SalonesPage() {
   }>({
     nombre: "",
     ubicacion: "",
-    capacidad: 0,
+    capacidad: "",
     descripcion: "",
     elementos: "",
     disponibleDesde: "07:00",
@@ -243,11 +243,17 @@ export default function SalonesPage() {
       return;
     }
 
+    const capacidad = roomForm.capacidad === "" ? NaN : Number(roomForm.capacidad);
+    if (!Number.isFinite(capacidad) || capacidad < 0) {
+      setError("La capacidad debe ser un número válido.");
+      return;
+    }
+
     try {
       const payload = {
         nombre: roomForm.nombre,
         ubicacion: roomForm.ubicacion || undefined,
-        capacidad: roomForm.capacidad,
+        capacidad,
         descripcion: roomForm.descripcion || undefined,
         elementos: roomForm.elementos || undefined,
         disponibleDesde: roomForm.disponibleDesde,
@@ -271,7 +277,7 @@ export default function SalonesPage() {
       setRoomForm({
         nombre: "",
         ubicacion: "",
-        capacidad: 0,
+        capacidad: "",
         descripcion: "",
         elementos: "",
         disponibleDesde: "07:00",
@@ -735,16 +741,26 @@ export default function SalonesPage() {
                     onChange={(e) => setRoomForm((p) => ({ ...p, ubicacion: e.target.value }))}
                   />
 
-                  <input
-                    className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
-                    type="number"
-                    min={0}
-                    step={1}
-                    placeholder="Capacidad"
-                    value={roomForm.capacidad}
-                    onChange={(e) => setRoomForm((p) => ({ ...p, capacidad: Number(e.target.value) }))}
-                    required
-                  />
+                  <label className="block space-y-1">
+                    <span className="text-xs font-semibold text-black/70">
+                      Capacidad (personas)
+                    </span>
+                    <input
+                      className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
+                      type="number"
+                      min={0}
+                      step={1}
+                      placeholder="Ej: 30"
+                      value={roomForm.capacidad}
+                      onChange={(e) =>
+                        setRoomForm((p) => ({
+                          ...p,
+                          capacidad: e.target.value === "" ? "" : Number(e.target.value),
+                        }))
+                      }
+                      required
+                    />
+                  </label>
 
                   <textarea
                     className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
@@ -816,7 +832,7 @@ export default function SalonesPage() {
                           setRoomForm({
                             nombre: "",
                             ubicacion: "",
-                            capacidad: 0,
+                            capacidad: "",
                             descripcion: "",
                             elementos: "",
                             disponibleDesde: "07:00",
