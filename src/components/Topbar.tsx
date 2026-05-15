@@ -9,6 +9,18 @@ import { useAppState } from "@/state/app-state";
 import { clearSession, getUser } from "@/lib/auth/session";
 import { adminNav, teacherNav } from "@/components/SideNav";
 
+function getDisplayName(user: ReturnType<typeof getUser>) {
+  const name = user?.name?.trim() ?? "";
+  const normalizedName = name.toLowerCase();
+  const isGenericAdminName =
+    normalizedName === "administrador sistema" ||
+    normalizedName === "admin sistema" ||
+    normalizedName === "administrador del sistema";
+
+  if (name && !isGenericAdminName) return name;
+  return user?.email?.split("@")[0] || "Usuario";
+}
+
 export function Topbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -18,7 +30,7 @@ export function Topbar() {
   const user = getUser();
   const isAdmin = state.role === "admin";
   const nav = isAdmin ? adminNav : teacherNav;
-  const displayName = user?.name?.trim() || user?.email?.split("@")[0] || "Usuario";
+  const displayName = getDisplayName(user);
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60">
