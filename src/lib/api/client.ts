@@ -63,6 +63,11 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
         handleUnauthorized();
       }
     }
+    if (res.status === 403 && message.toLowerCase().includes("cambiar la contraseña")) {
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/app/cambiar-contrasena")) {
+        window.location.assign("/app/cambiar-contrasena");
+      }
+    }
     throw new ApiError(res.status, message, body);
   }
 

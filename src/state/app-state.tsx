@@ -286,7 +286,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   async function syncMe() {
     const token = getToken();
     if (!token) return;
-    const res = await apiFetch<{ user: { id: string; role: string; name?: string; email?: string; blocked?: boolean } }>(
+    const res = await apiFetch<{ user: { id: string; role: string; name?: string; email?: string; blocked?: boolean; debeCambiarContrasena?: boolean } }>(
       "/api/auth/me",
     );
     const u = res.user;
@@ -297,6 +297,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       name: String(u.name ?? ""),
       email: String(u.email ?? ""),
       blocked: Boolean(u.blocked),
+      debeCambiarContrasena: Boolean(u.debeCambiarContrasena),
     });
   }
 

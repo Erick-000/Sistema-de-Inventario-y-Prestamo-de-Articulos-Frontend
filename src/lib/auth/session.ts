@@ -4,6 +4,7 @@ export type SessionUser = {
   name: string;
   email: string;
   blocked?: boolean;
+  debeCambiarContrasena?: boolean;
 };
 
 const TOKEN_KEY = "inventario_token";
@@ -12,6 +13,23 @@ const USER_KEY = "inventario_user";
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem(TOKEN_KEY);
+}
+
+export function isTokenExpired(token: string | null) {
+  if (!token) return true;
+  const [body] = token.split(".");
+  if (!body) return true;
+  try {
+    const base64 = body.replaceAll("-", "+").replaceAll("_", "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const payload = JSON.parse(atob(padded)) as {
+      exp?: unknown;
+    };
+    if (typeof payload.exp !== "number" || !Number.isFinite(payload.exp)) return false;
+    return Date.now() > payload.exp;
+  } catch {
+    return true;
+  }
 }
 
 export function setSession(token: string, user: SessionUser) {

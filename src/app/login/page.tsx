@@ -30,19 +30,23 @@ function LoginPageInner() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail.endsWith("@miuniclaretiana.edu.co")) {
       setError("El correo debe ser @miuniclaretiana.edu.co");
+      setLoading(false);
       return;
     }
 
     try {
       const res = await apiFetch<{
         token: string;
-        user: { id: string; role: string; name: string; email: string };
+        user: { id: string; role: string; name: string; email: string; debeCambiarContrasena?: boolean };
         debeCambiarContrasena: boolean;
       }>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email: normalizedEmail, password }),
       });
-      setSession(res.token, res.user);
+      setSession(res.token, {
+        ...res.user,
+        debeCambiarContrasena: res.debeCambiarContrasena,
+      });
 
       if (res.debeCambiarContrasena) {
         router.push("/app/cambiar-contrasena");

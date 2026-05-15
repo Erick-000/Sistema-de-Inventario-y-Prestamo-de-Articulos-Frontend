@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { getToken } from "@/lib/auth/session";
+import { clearSession, getToken, getUser, isTokenExpired } from "@/lib/auth/session";
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -12,12 +12,21 @@ export function AuthGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     Promise.resolve().then(() => {
       const t = getToken();
-      setToken(t);
 
-      if (!t) {
+      if (!t || isTokenExpired(t)) {
+        clearSession();
         const next = encodeURIComponent(pathname || "/app/dashboard");
         router.replace(`/login?next=${next}`);
+        setToken(null);
+        return;
       }
+
+      const user = getUser();
+      if (user?.debeCambiarContrasena && pathname !== "/app/cambiar-contrasena") {
+        router.replace("/app/cambiar-contrasena");
+      }
+
+      setToken(t);
     });
   }, [pathname, router]);
 
