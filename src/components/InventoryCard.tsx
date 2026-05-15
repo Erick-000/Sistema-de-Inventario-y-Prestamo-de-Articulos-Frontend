@@ -57,26 +57,26 @@ export function InventoryCard({
         : "bg-black/70";
 
   return (
-    <div className="group rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-black/[0.04] hover:shadow-md">
-      <div className="flex h-full flex-col rounded-[calc(2rem-0.375rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
+    <div className="group rounded-2xl border border-black/5 bg-black/[0.02] p-1 shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-black/[0.04] hover:shadow-md sm:rounded-[2rem] sm:p-1.5">
+      <div className="flex h-full flex-col rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.25rem] border border-black/5 bg-[radial-gradient(14px_14px_at_30%_30%,rgba(244,196,0,0.22),transparent_60%)] text-black/80 shadow-sm transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">
               <CategoryIcon className="h-6 w-6" />
             </span>
-            <div>
+            <div className="min-w-0">
               <div className="text-sm font-bold leading-tight text-black line-clamp-2">{item.name}</div>
               <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
                 {item.category}
               </div>
             </div>
           </div>
-          <span className="shrink-0 rounded-full bg-black/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-black/60 shadow-sm ring-1 ring-inset ring-black/5">
+          <span className="w-fit max-w-full shrink-0 truncate rounded-full bg-black/[0.04] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-black/60 shadow-sm ring-1 ring-inset ring-black/5">
             {item.serial || `UIB-${item.id.slice(-6).toUpperCase()}`}
           </span>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 rounded-[1.25rem] border border-black/5 bg-black/[0.015] p-4 text-xs shadow-inner">
+        <div className="mt-5 grid grid-cols-1 gap-x-4 gap-y-3 rounded-[1.25rem] border border-black/5 bg-black/[0.015] p-4 text-xs shadow-inner sm:mt-6 sm:grid-cols-2">
           {item.serial && (
             <div className="flex flex-col">
               <span className="text-[9px] font-bold uppercase tracking-widest text-black/40">Serial</span>
@@ -100,7 +100,7 @@ export function InventoryCard({
             <span className="font-semibold text-black/80 truncate">{item.objectStatus}</span>
           </div>
           {item.notes && (
-            <div className="col-span-2 mt-2 flex flex-col border-t border-black/5 pt-3">
+            <div className="mt-2 flex flex-col border-t border-black/5 pt-3 sm:col-span-2">
               <span className="text-[9px] font-bold uppercase tracking-widest text-black/40">Notas</span>
               <span className="font-semibold text-black/80 line-clamp-2" title={item.notes}>{item.notes}</span>
             </div>
@@ -108,7 +108,7 @@ export function InventoryCard({
         </div>
 
         <div className="mt-auto pt-6 space-y-3">
-          <div className="flex items-center justify-between text-[11px] font-semibold tracking-wide text-black/50">
+          <div className="grid grid-cols-1 gap-1 text-[11px] font-semibold tracking-wide text-black/50 sm:grid-cols-3 sm:gap-2">
             <span>TOTAL: {item.total}</span>
             <span>PRESTADOS: {loaned}</span>
             <span className="text-black">DISPONIBLES: {item.available}</span>

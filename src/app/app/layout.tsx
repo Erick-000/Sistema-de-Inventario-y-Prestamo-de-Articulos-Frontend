@@ -12,7 +12,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Topbar />
           <div className="flex w-full flex-1">
             <SideNav />
-            <main className="flex-1 px-6 py-10 md:px-10 lg:px-12 xl:px-16">{children}</main>
+            <main className="min-w-0 flex-1 px-3 py-6 sm:px-5 md:px-8 lg:px-10 xl:px-14">
+              {children}
+            </main>
           </div>
         </div>
       </AppStateProvider>

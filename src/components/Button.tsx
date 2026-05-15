@@ -39,7 +39,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`group inline-flex items-center justify-center ${isSm ? "h-9 gap-1.5 px-4 text-xs" : "h-12 gap-3 px-6 text-sm"} rounded-full border font-bold shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${
+      className={`group inline-flex w-full items-center justify-center sm:w-auto ${isSm ? "min-h-9 gap-1.5 px-3 py-2 text-xs sm:px-4" : "min-h-11 gap-2 px-4 py-2.5 text-sm sm:min-h-12 sm:gap-3 sm:px-6"} rounded-full border font-bold shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 ${
         variants[variant]
       } ${className ?? ""}`}
     >

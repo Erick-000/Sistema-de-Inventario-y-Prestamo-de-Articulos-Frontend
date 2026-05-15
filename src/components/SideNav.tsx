@@ -37,7 +37,7 @@ export function SideNav() {
   const nav = isAdmin ? adminNav : teacherNav;
 
   return (
-    <aside className="sticky top-20 hidden h-[calc(100vh-5rem)] w-[280px] border-r border-black/5 bg-white/30 backdrop-blur-sm lg:block">
+    <aside className="sticky top-20 hidden h-[calc(100vh-5rem)] w-[240px] shrink-0 border-r border-black/5 bg-white/30 backdrop-blur-sm xl:w-[280px] lg:block">
       <nav className="flex h-full flex-col gap-2 overflow-y-auto p-6">
         {nav.map(({ href, label, Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");

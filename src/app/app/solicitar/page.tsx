@@ -264,8 +264,8 @@ function SolicitarContent() {
                 {items.map((it, idx) => {
                   const maxQty = availableArticles.find((a) => a.id === it.articleId)?.available || 1;
                   return (
-                    <div key={idx} className="grid grid-cols-12 gap-3">
-                      <div className="col-span-8">
+                    <div key={idx} className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                      <div className="sm:col-span-8">
                         <select className={INPUT} value={it.articleId}
                           onChange={(e) => { const n = [...items]; n[idx] = { ...n[idx], articleId: e.target.value }; setItems(n); }}
                           required>
@@ -277,13 +277,13 @@ function SolicitarContent() {
                           ))}
                         </select>
                       </div>
-                      <div className="col-span-3">
+                      <div className="sm:col-span-3">
                         <input type="number" className={INPUT} min={1} max={maxQty} value={it.quantity}
                           autoComplete="off"
                           onChange={(e) => { const n = [...items]; n[idx] = { ...n[idx], quantity: e.target.value }; setItems(n); }}
                           placeholder="Cant." required />
                       </div>
-                      <div className="col-span-1 flex items-center justify-center">
+                      <div className="flex items-center justify-center sm:col-span-1">
                         <button type="button" className="h-11 w-full rounded-xl border border-black/10 text-sm font-bold text-black/50 hover:bg-black/5"
                           onClick={() => { const n = items.filter((_, i) => i !== idx); setItems(n.length ? n : [{ articleId: "", quantity: "1" }]); }}>
                           ×

@@ -44,7 +44,7 @@ export function Modal({
   }[size];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center p-2 sm:items-center sm:p-4">
       <button
         type="button"
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-fade-in"
@@ -55,12 +55,12 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative flex max-h-[calc(100dvh-1.5rem)] w-full ${sizeClass} flex-col overflow-hidden rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] animate-slide-up sm:max-h-[calc(100dvh-2rem)]`}
+        className={`relative flex max-h-[calc(100dvh-1rem)] w-full ${sizeClass} flex-col overflow-hidden rounded-2xl border border-black/5 bg-black/[0.02] p-1 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] animate-slide-up sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:p-1.5`}
       >
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[calc(2rem-0.375rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5">
-          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-black/5 bg-black/[0.01] px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[calc(1rem-0.25rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)]">
+          <div className="flex shrink-0 items-start justify-between gap-3 border-b border-black/5 bg-black/[0.01] px-4 py-3 sm:gap-4 sm:px-6 sm:py-5">
             <div className="min-w-0">
-              <div id="modal-title" className="truncate text-base font-bold tracking-wide text-black">
+              <div id="modal-title" className="line-clamp-2 text-sm font-bold tracking-wide text-black sm:text-base">
                 {title}
               </div>
             </div>
@@ -75,11 +75,11 @@ export function Modal({
               </svg>
             </button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
             {children}
           </div>
           {footer ? (
-            <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-t border-black/5 bg-black/[0.01] p-5 sm:p-6">
+            <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-black/5 bg-black/[0.01] p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-3 sm:p-6">
               {footer}
             </div>
           ) : null}

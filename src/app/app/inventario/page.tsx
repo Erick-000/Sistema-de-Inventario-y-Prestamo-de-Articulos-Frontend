@@ -612,7 +612,7 @@ export default function InventarioPage() {
               onSolicitar={isTeacher ? () => openLoanModal(item) : undefined}
               actions={
                 canManage ? (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <Button
                       size="sm"
                       className="w-full"
@@ -666,7 +666,7 @@ export default function InventarioPage() {
         onSubmit={submitCreate}
         submitDisabled={createDisabled}
       >
-        <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
           <label className="space-y-1 md:col-span-2">
             <div className="text-xs font-semibold tracking-widest text-black/60">Nombre</div>
             <input
@@ -764,7 +764,7 @@ export default function InventarioPage() {
             </select>
           </label>
 
-          <div className="grid grid-cols-2 gap-3 md:col-span-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:col-span-2">
             <label className="space-y-1">
               <div className="text-xs font-semibold tracking-widest text-black/60">Stock total</div>
               <input
@@ -818,7 +818,7 @@ export default function InventarioPage() {
         onSubmit={submitEdit}
         submitDisabled={editDisabled}
       >
-        <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
           <div className="rounded-xl border border-black/10 bg-black/[0.02] px-3 py-2 text-xs font-semibold text-black/60 md:col-span-2">
             CÓDIGO: {selected?.serial || (selectedId ? `UIB-${selectedId.slice(-6).toUpperCase()}` : "")}
           </div>
@@ -915,7 +915,7 @@ export default function InventarioPage() {
             </select>
           </label>
 
-          <div className="grid grid-cols-2 gap-3 md:col-span-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:col-span-2">
             <label className="space-y-1">
               <div className="text-xs font-semibold tracking-widest text-black/60">Stock total</div>
               <input
@@ -971,7 +971,7 @@ export default function InventarioPage() {
             {selected ? `${selected.name} (CÓDIGO: ${selected.serial || `UIB-${selected.id.slice(-6).toUpperCase()}`})` : ""}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="space-y-1">
               <div className="text-xs font-semibold tracking-widest text-black/60">Stock total</div>
               <input
@@ -1203,7 +1203,7 @@ export default function InventarioPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold tracking-widest text-black/60">FECHA DE INICIO</label>
               <input
@@ -1235,7 +1235,7 @@ export default function InventarioPage() {
             Los artículos son para uso institucional. {ARTICLE_LOAN_LIMIT_TEXT} Máximo {MAX_ARTICLE_LOAN_HOURS} horas.
           </p>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold tracking-widest text-black/60">HORA DE ENTREGA</label>
               <input

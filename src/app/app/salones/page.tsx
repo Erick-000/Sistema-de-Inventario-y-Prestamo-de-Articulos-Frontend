@@ -423,7 +423,7 @@ export default function SalonesPage() {
         <div className="space-y-6">
           {/* Salon cards */}
           <section className="rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 hover:bg-black/[0.04]">
-            <div className="h-full rounded-[calc(2rem-0.375rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5">
+            <div className="h-full rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-black">Calendario semanal</h2>
@@ -503,7 +503,7 @@ export default function SalonesPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {activeRooms.map((r) => (
                 <div key={r._id} className="group rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-black/[0.04] hover:shadow-md">
-                  <div className="flex h-full flex-col rounded-[calc(2rem-0.375rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5">
+                  <div className="flex h-full flex-col rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
                     <div className="flex items-start justify-between gap-2">
                       <div className="font-bold text-black">{r.nombre}</div>
                       <span className="shrink-0 rounded-full bg-black/[0.04] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-black/60 shadow-sm ring-1 ring-inset ring-black/5">
@@ -582,7 +582,7 @@ export default function SalonesPage() {
         /* ── ADMIN LAYOUT ───────────────────────────────────── */
         <div className="space-y-4">
           <section className="rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 hover:bg-black/[0.04]">
-            <div className="h-full rounded-[calc(2rem-0.375rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5">
+            <div className="h-full rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-black">Calendario semanal</h2>
@@ -781,7 +781,7 @@ export default function SalonesPage() {
                     rows={2}
                   />
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <label className="mb-1 block text-xs font-semibold text-black/70">
                         Disponible desde
@@ -818,7 +818,7 @@ export default function SalonesPage() {
                     Activo
                   </label>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <button
                       type="submit"
                       className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
@@ -876,7 +876,7 @@ export default function SalonesPage() {
                     onChange={(e) => setBlockForm((p) => ({ ...p, fecha: e.target.value }))}
                     required
                   />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <input
                       className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
                       type="time"
@@ -967,7 +967,7 @@ export default function SalonesPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-semibold tracking-widest text-black/60">HORA INICIO</label>
               <input

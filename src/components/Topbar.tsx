@@ -34,11 +34,11 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60">
-      <div className="flex h-20 w-full items-center justify-between px-6 md:px-10">
-        <div className="flex items-center gap-4">
+      <div className="flex h-16 w-full items-center justify-between gap-2 px-3 sm:h-20 sm:px-6 md:px-10">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <button
             type="button"
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/5 bg-white text-black/70 shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] lg:hidden hover:scale-105 hover:bg-black/[0.02]"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-black/5 bg-white text-black/70 shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-105 hover:bg-black/[0.02] sm:h-12 sm:w-12 lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -51,8 +51,8 @@ export function Topbar() {
               </svg>
             )}
           </button>
-          <Link href="/app/dashboard" className="group flex items-center gap-4 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5">
-            <div className="relative h-12 w-12 overflow-hidden rounded-full border border-black/5 bg-white p-1.5 shadow-sm ring-1 ring-inset ring-black/5 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+          <Link href="/app/dashboard" className="group flex min-w-0 items-center gap-2 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 sm:gap-4">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-black/5 bg-white p-1.5 shadow-sm ring-1 ring-inset ring-black/5 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105 sm:h-12 sm:w-12">
               <Image
                 src="/unicalretiana/favicon.png"
                 alt="Uniclaretiana"
@@ -62,8 +62,8 @@ export function Topbar() {
                 priority
               />
             </div>
-            <div className="leading-tight">
-              <div className="text-[13px] font-bold tracking-[0.15em] text-black">
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-[11px] font-bold tracking-[0.12em] text-black sm:text-[13px] sm:tracking-[0.15em]">
                 UNICLARETIANA
               </div>
               <div className="hidden text-xs font-medium tracking-wide text-black/50 sm:block">INVENTARIO & PRÉSTAMOS</div>
@@ -71,10 +71,10 @@ export function Topbar() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
           <Link
             href="/app/notificaciones"
-            className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-black/5 bg-white text-black/70 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:scale-105 hover:bg-black/[0.02] hover:shadow-md"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-white text-black/70 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:scale-105 hover:bg-black/[0.02] hover:shadow-md sm:h-12 sm:w-12"
             aria-label="Notificaciones"
           >
             <IconBell className="h-5 w-5" />
@@ -85,18 +85,18 @@ export function Topbar() {
 
           <button
             type="button"
-            className="group inline-flex h-12 items-center gap-3 rounded-full border border-black/5 bg-white px-4 text-sm font-bold text-black/80 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-black/[0.02] hover:shadow-md"
+            className="group hidden h-12 max-w-[220px] items-center gap-3 rounded-full border border-black/5 bg-white px-4 text-sm font-bold text-black/80 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-black/[0.02] hover:shadow-md sm:inline-flex"
             aria-label="Perfil"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.04] text-black transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">
               <IconUser className="h-4 w-4" />
             </span>
-            <span className="hidden sm:block">{displayName}</span>
+            <span className="truncate">{displayName}</span>
           </button>
 
           <button
             type="button"
-            className="inline-flex h-12 items-center gap-3 rounded-full border border-black/5 bg-white px-4 text-sm font-bold text-black/70 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 hover:shadow-md"
+            className="inline-flex h-10 items-center gap-2 rounded-full border border-black/5 bg-white px-3 text-sm font-bold text-black/70 shadow-sm transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 hover:shadow-md sm:h-12 sm:gap-3 sm:px-4"
             aria-label="Salir"
             onClick={() => {
               clearSession();

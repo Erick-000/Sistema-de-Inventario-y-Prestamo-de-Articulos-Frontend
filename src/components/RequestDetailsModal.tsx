@@ -34,7 +34,7 @@ export function RequestDetailsModal({
           </div>
 
           {/* Fechas */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-black/10 p-3">
               <div className="text-[9px] font-bold uppercase tracking-widest text-black/40">
                 {request.type === "room" ? "Fecha" : "Fecha de inicio"}

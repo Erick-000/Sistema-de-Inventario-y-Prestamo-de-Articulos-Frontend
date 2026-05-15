@@ -190,7 +190,7 @@ export function RequestAdminActions({
         }
       >
         <div className="space-y-4 text-sm">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <button
               type="button"
               className={`rounded-xl border px-3 py-2 text-sm font-semibold ${

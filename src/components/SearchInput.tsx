@@ -10,8 +10,8 @@ export function SearchInput({
   placeholder: string;
 }) {
   return (
-    <div className="flex h-12 w-full max-w-xl items-center gap-4 rounded-full border border-black/5 bg-black/[0.02] px-6 shadow-sm ring-1 ring-inset ring-white/50 backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus-within:-translate-y-0.5 focus-within:bg-white focus-within:shadow-md hover:bg-black/[0.04]">
-      <IconSearch className="h-5 w-5 text-black/40 transition-colors duration-300 group-focus-within:text-uniclaretiana-yellow" />
+    <div className="flex h-11 w-full max-w-xl items-center gap-3 rounded-full border border-black/5 bg-black/[0.02] px-4 shadow-sm ring-1 ring-inset ring-white/50 backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus-within:-translate-y-0.5 focus-within:bg-white focus-within:shadow-md hover:bg-black/[0.04] sm:h-12 sm:gap-4 sm:px-6">
+      <IconSearch className="h-4 w-4 shrink-0 text-black/40 transition-colors duration-300 group-focus-within:text-uniclaretiana-yellow sm:h-5 sm:w-5" />
       <input
         type="search"
         value={value}
