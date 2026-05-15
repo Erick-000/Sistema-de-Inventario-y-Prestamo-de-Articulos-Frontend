@@ -424,67 +424,69 @@ export default function SalonesPage() {
           {/* Salon cards */}
           <section className="rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 hover:bg-black/[0.04]">
             <div className="h-full rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
                   <h2 className="text-lg font-bold text-black">Calendario semanal</h2>
                   <p className="text-xs font-semibold tracking-wide text-black/50">Reservas aprobadas o pendientes por día.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                   <Button variant="ghost" size="sm" onClick={() => moveWeek(-1)}>Anterior</Button>
                   <input
                     type="date"
-                    className="h-9 rounded-full border border-black/5 bg-black/[0.02] px-4 text-xs font-semibold outline-none ring-1 ring-inset ring-black/5 transition-all duration-300 focus:bg-white focus:ring-uniclaretiana-yellow"
+                    className="col-span-2 h-9 w-full rounded-full border border-black/5 bg-black/[0.02] px-4 text-xs font-semibold outline-none ring-1 ring-inset ring-black/5 transition-all duration-300 focus:bg-white focus:ring-uniclaretiana-yellow sm:col-span-1 sm:w-auto"
                     value={weekStart}
                     onChange={(e) => setWeekStart(getMonday(e.target.value))}
                   />
                   <Button variant="ghost" size="sm" onClick={() => moveWeek(1)}>Siguiente</Button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
-                {weekDays.map((date, index) => {
-                  const items = weekReservations.filter((item) => item.fecha === date);
-                  return (
-                    <div
-                      key={date}
-                      className={`min-h-32 rounded-2xl border border-black/5 p-3 shadow-inner ${
-                        items.length === 0 ? "bg-emerald-50/60" : "bg-amber-50/60"
-                      }`}
-                    >
-                      <div className="text-xs font-bold text-black">{dayLabels[index]}</div>
-                      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-black/40">{date}</div>
-                      <div className="mt-3 space-y-2">
-                        {items.slice(0, 4).map((item) => (
-                          <div
-                            key={item._id}
-                            className={`rounded-xl border bg-white p-2 shadow-sm ${getReservationStatusBadgeClass(
-                              item.estado,
-                            )}`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="truncate text-[11px] font-bold">{item.nombreSalon}</div>
-                                <div className="text-[10px] font-semibold opacity-80">
-                                  {minutesToTime(item.startMin)}-{minutesToTime(item.endMin)}
+              <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:px-0">
+                <div className="grid min-w-[980px] grid-cols-7 gap-3 md:min-w-0">
+                  {weekDays.map((date, index) => {
+                    const items = weekReservations.filter((item) => item.fecha === date);
+                    return (
+                      <div
+                        key={date}
+                        className={`min-h-32 rounded-2xl border border-black/5 p-3 shadow-inner ${
+                          items.length === 0 ? "bg-emerald-50/60" : "bg-amber-50/60"
+                        }`}
+                      >
+                        <div className="text-xs font-bold text-black">{dayLabels[index]}</div>
+                        <div className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-black/40">{date}</div>
+                        <div className="mt-3 space-y-2">
+                          {items.slice(0, 4).map((item) => (
+                            <div
+                              key={item._id}
+                              className={`rounded-xl border bg-white p-2 shadow-sm ${getReservationStatusBadgeClass(
+                                item.estado,
+                              )}`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="truncate text-[11px] font-bold">{item.nombreSalon}</div>
+                                  <div className="text-[10px] font-semibold opacity-80">
+                                    {minutesToTime(item.startMin)}-{minutesToTime(item.endMin)}
+                                  </div>
                                 </div>
+                                <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-bold">
+                                  {item.estado}
+                                </span>
                               </div>
-                              <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-bold">
-                                {item.estado}
-                              </span>
                             </div>
-                          </div>
-                        ))}
-                        {items.length === 0 ? (
-                          <div className="inline-flex items-center rounded-full border border-emerald-500/20 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                            Libre
-                          </div>
-                        ) : null}
-                        {items.length > 4 ? (
-                          <div className="text-[10px] font-bold text-black/40">+{items.length - 4} más</div>
-                        ) : null}
+                          ))}
+                          {items.length === 0 ? (
+                            <div className="inline-flex items-center rounded-full border border-emerald-500/20 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+                              Libre
+                            </div>
+                          ) : null}
+                          {items.length > 4 ? (
+                            <div className="text-[10px] font-bold text-black/40">+{items.length - 4} más</div>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
@@ -583,69 +585,71 @@ export default function SalonesPage() {
         <div className="space-y-4">
           <section className="rounded-[2rem] border border-black/5 bg-black/[0.02] p-1.5 shadow-sm transition-all duration-700 hover:bg-black/[0.04]">
             <div className="h-full rounded-[calc(1rem-0.25rem)] bg-white p-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] ring-1 ring-black/5 sm:rounded-[calc(2rem-0.375rem)] sm:p-6">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
                   <h2 className="text-lg font-bold text-black">Calendario semanal</h2>
                   <p className="text-xs font-semibold tracking-wide text-black/50">Reservas pendientes y aprobadas. Para aprobar o rechazar, ve a Solicitudes.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                   <Button variant="ghost" size="sm" onClick={() => moveWeek(-1)}>Anterior</Button>
                   <input
                     type="date"
-                    className="h-9 rounded-full border border-black/5 bg-black/[0.02] px-4 text-xs font-semibold outline-none ring-1 ring-inset ring-black/5 transition-all duration-300 focus:bg-white focus:ring-uniclaretiana-yellow"
+                    className="col-span-2 h-9 w-full rounded-full border border-black/5 bg-black/[0.02] px-4 text-xs font-semibold outline-none ring-1 ring-inset ring-black/5 transition-all duration-300 focus:bg-white focus:ring-uniclaretiana-yellow sm:col-span-1 sm:w-auto"
                     value={weekStart}
                     onChange={(e) => setWeekStart(getMonday(e.target.value))}
                   />
                   <Button variant="ghost" size="sm" onClick={() => moveWeek(1)}>Siguiente</Button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
-                {weekDays.map((date, index) => {
-                  const items = weekReservations.filter((item) => item.fecha === date);
-                  return (
-                    <div
-                      key={date}
-                      className={`min-h-36 rounded-2xl border border-black/5 p-3 shadow-inner ${
-                        items.length === 0 ? "bg-emerald-50/60" : "bg-amber-50/60"
-                      }`}
-                    >
-                      <div className="text-xs font-bold text-black">{dayLabels[index]}</div>
-                      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-black/40">{date}</div>
-                      <div className="mt-3 space-y-2">
-                        {items.map((item) => (
-                          <div
-                            key={item._id}
-                            className={`rounded-xl border bg-white p-2 shadow-sm ${getReservationStatusBadgeClass(
-                              item.estado,
-                            )}`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="truncate text-[11px] font-bold">{item.nombreSalon}</div>
-                                <div className="truncate text-[10px] font-semibold opacity-80">
-                                  {item.nombreDocente === "Bloqueo institucional"
-                                    ? "Bloqueo / mantenimiento"
-                                    : item.nombreDocente}
+              <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:px-0">
+                <div className="grid min-w-[980px] grid-cols-7 gap-3 md:min-w-0">
+                  {weekDays.map((date, index) => {
+                    const items = weekReservations.filter((item) => item.fecha === date);
+                    return (
+                      <div
+                        key={date}
+                        className={`min-h-36 rounded-2xl border border-black/5 p-3 shadow-inner ${
+                          items.length === 0 ? "bg-emerald-50/60" : "bg-amber-50/60"
+                        }`}
+                      >
+                        <div className="text-xs font-bold text-black">{dayLabels[index]}</div>
+                        <div className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-black/40">{date}</div>
+                        <div className="mt-3 space-y-2">
+                          {items.map((item) => (
+                            <div
+                              key={item._id}
+                              className={`rounded-xl border bg-white p-2 shadow-sm ${getReservationStatusBadgeClass(
+                                item.estado,
+                              )}`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="truncate text-[11px] font-bold">{item.nombreSalon}</div>
+                                  <div className="truncate text-[10px] font-semibold opacity-80">
+                                    {item.nombreDocente === "Bloqueo institucional"
+                                      ? "Bloqueo / mantenimiento"
+                                      : item.nombreDocente}
+                                  </div>
+                                  <div className="text-[10px] font-semibold opacity-70">
+                                    {minutesToTime(item.startMin)}-{minutesToTime(item.endMin)}
+                                  </div>
                                 </div>
-                                <div className="text-[10px] font-semibold opacity-70">
-                                  {minutesToTime(item.startMin)}-{minutesToTime(item.endMin)}
-                                </div>
+                                <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-bold">
+                                  {item.estado}
+                                </span>
                               </div>
-                              <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-bold">
-                                {item.estado}
-                              </span>
                             </div>
-                          </div>
-                        ))}
-                        {items.length === 0 ? (
-                          <div className="inline-flex items-center rounded-full border border-emerald-500/20 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                            Libre
-                          </div>
-                        ) : null}
+                          ))}
+                          {items.length === 0 ? (
+                            <div className="inline-flex items-center rounded-full border border-emerald-500/20 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">
+                              Libre
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
