@@ -428,12 +428,56 @@ export default function InventarioPage() {
     return labels[action] ?? action;
   }
 
+  function actorLabel(actorName?: string) {
+    const name = actorName?.trim();
+    if (!name) return "Evento del sistema";
+    const normalized = name.toLowerCase();
+    if (
+      normalized === "administrador sistema" ||
+      normalized === "admin sistema" ||
+      normalized === "administrador del sistema"
+    ) {
+      return "Por administrador";
+    }
+    return `Por ${name}`;
+  }
+
+  function historyFieldLabel(field: string) {
+    const labels: Record<string, string> = {
+      nombre: "Nombre",
+      serial: "Serial",
+      categoria: "Categoría",
+      ubicacion: "Ubicación",
+      responsable: "Responsable",
+      notas: "Notas",
+      estadoObjeto: "Estado",
+      stockTotal: "Stock total",
+      stockDisponible: "Stock disponible",
+      stockMinimo: "Stock mínimo",
+      activo: "Activo",
+    };
+    return labels[field] ?? field;
+  }
+
+  function formatHistoryValue(value: unknown) {
+    if (value === undefined || value === null || value === "") return "Sin dato";
+    if (typeof value === "boolean") return value ? "Sí" : "No";
+    return String(value);
+  }
+
   function historySummary(item: { accion: string; metadata?: Record<string, unknown> }) {
     const metadata = item.metadata ?? {};
     if (item.accion === "article.updated") {
       const patch = metadata.patch as Record<string, unknown> | undefined;
       const keys = patch ? Object.keys(patch) : [];
-      return keys.length ? `Cambios: ${keys.join(", ")}` : "Se actualizó la información del artículo.";
+      return keys.length
+        ? `Se actualizaron ${keys.length} campos del artículo.`
+        : "Se actualizó la información del artículo.";
+    }
+    if (item.accion === "article.created" || item.accion === "article.created.bulk") {
+      const category = metadata.categoria ? ` en ${String(metadata.categoria)}` : "";
+      const total = metadata.stockTotal !== undefined ? ` con ${String(metadata.stockTotal)} unidades` : "";
+      return `Registrado${category}${total}.`;
     }
     if (item.accion === "loan.returned") {
       return metadata.returnCondition === "ISSUE"
@@ -444,6 +488,38 @@ export default function InventarioPage() {
       return "El artículo fue incluido en una solicitud de préstamo.";
     }
     return undefined;
+  }
+
+  function historyDetails(item: { accion: string; metadata?: Record<string, unknown> }) {
+    const metadata = item.metadata ?? {};
+    if (item.accion === "article.updated") {
+      const patch = metadata.patch as Record<string, unknown> | undefined;
+      const previous = metadata.previous as Record<string, unknown> | undefined;
+      if (!patch) return [];
+      return Object.entries(patch)
+        .filter(([field, value]) => previous?.[field] !== value)
+        .map(([field, value]) => ({
+          label: historyFieldLabel(field),
+          before: formatHistoryValue(previous?.[field]),
+          after: formatHistoryValue(value),
+        }));
+    }
+
+    if (item.accion === "article.created" || item.accion === "article.created.bulk") {
+      return [
+        metadata.categoria !== undefined
+          ? { label: "Categoría", before: "", after: formatHistoryValue(metadata.categoria) }
+          : null,
+        metadata.stockTotal !== undefined
+          ? { label: "Stock total", before: "", after: formatHistoryValue(metadata.stockTotal) }
+          : null,
+        metadata.stockDisponible !== undefined
+          ? { label: "Stock disponible", before: "", after: formatHistoryValue(metadata.stockDisponible) }
+          : null,
+      ].filter((detail): detail is { label: string; before: string; after: string } => Boolean(detail));
+    }
+
+    return [];
   }
 
   function submitCreate() {
@@ -1262,29 +1338,48 @@ export default function InventarioPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {history.map((item) => (
-              <div key={item._id} className="rounded-xl border border-black/10 bg-white p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-semibold text-black">{historyTitle(item.accion)}</div>
-                    <div className="mt-0.5 text-xs text-black/50">
-                      {item.actorNombre ? `Por ${item.actorNombre}` : "Evento del sistema"}
+            {history.map((item) => {
+              const details = historyDetails(item);
+              return (
+                <div key={item._id} className="rounded-xl border border-black/10 bg-white p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-black">{historyTitle(item.accion)}</div>
+                      <div className="mt-0.5 text-xs text-black/50">
+                        {actorLabel(item.actorNombre)}
+                      </div>
+                      {historySummary(item) ? (
+                        <div className="mt-1 text-xs text-black/60">{historySummary(item)}</div>
+                      ) : null}
                     </div>
-                    {historySummary(item) ? (
-                      <div className="mt-1 text-xs text-black/60">{historySummary(item)}</div>
-                    ) : null}
+                    <div className="shrink-0 text-xs font-semibold text-black/50">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleString("es-CO") : ""}
+                    </div>
                   </div>
-                  <div className="text-xs font-semibold text-black/50">
-                    {item.createdAt ? new Date(item.createdAt).toLocaleString("es-CO") : ""}
-                  </div>
+
+                  {details.length > 0 ? (
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {details.map((detail) => (
+                        <div key={detail.label} className="rounded-lg border border-black/10 bg-black/[0.015] px-3 py-2">
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+                            {detail.label}
+                          </div>
+                          {detail.before ? (
+                            <div className="mt-1 text-xs font-semibold text-black/70">
+                              <span className="text-black/40">{detail.before}</span>
+                              <span className="px-1.5 text-black/30">→</span>
+                              <span>{detail.after}</span>
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-xs font-semibold text-black/70">{detail.after}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
-                {item.metadata ? (
-                  <pre className="mt-3 max-h-32 overflow-auto rounded-lg bg-black/[0.03] p-3 text-[11px] leading-relaxed text-black/60">
-                    {JSON.stringify(item.metadata, null, 2)}
-                  </pre>
-                ) : null}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Modal>
