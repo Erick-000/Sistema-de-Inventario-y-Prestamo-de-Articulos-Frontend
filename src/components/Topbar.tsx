@@ -18,6 +18,7 @@ export function Topbar() {
   const user = getUser();
   const isAdmin = state.role === "admin";
   const nav = isAdmin ? adminNav : teacherNav;
+  const displayName = user?.name?.trim() || user?.email?.split("@")[0] || "Usuario";
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60">
@@ -78,7 +79,7 @@ export function Topbar() {
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/[0.04] text-black transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-110">
               <IconUser className="h-4 w-4" />
             </span>
-            <span className="hidden sm:block">{user?.name ?? "Usuario"}</span>
+            <span className="hidden sm:block">{displayName}</span>
           </button>
 
           <button

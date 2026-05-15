@@ -69,6 +69,10 @@ export default function UsuariosPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [passwordUser, setPasswordUser] = useState<UserDto | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   async function load() {
     setLoading(true);
@@ -102,6 +106,29 @@ export default function UsuariosPage() {
       body: JSON.stringify({ blocked }),
     });
     await load();
+  }
+
+  async function updateTeacherPassword() {
+    if (!passwordUser) return;
+    if (newPassword.length < 6) {
+      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    setPasswordSaving(true);
+    setPasswordError("");
+    try {
+      await apiFetch(`/api/users/${passwordUser._id}/password`, {
+        method: "PATCH",
+        body: JSON.stringify({ password: newPassword }),
+      });
+      setPasswordUser(null);
+      setNewPassword("");
+      await load();
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : "No se pudo cambiar la contraseña");
+    } finally {
+      setPasswordSaving(false);
+    }
   }
 
   async function openProfile(user: UserDto) {
@@ -180,14 +207,26 @@ export default function UsuariosPage() {
                 {user.rol === "admin" ? (
                   <span className="text-xs font-semibold text-black/40">Protegido</span>
                 ) : (
-                  <Button
-                    variant={user.bloqueado ? "secondary" : "ghost"}
-                    onClick={() => {
-                      void updateBlocked(user, !user.bloqueado);
-                    }}
-                  >
-                    {user.bloqueado ? "Desbloquear" : "Bloquear"}
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setPasswordUser(user);
+                        setNewPassword("");
+                        setPasswordError("");
+                      }}
+                    >
+                      Cambiar contraseña
+                    </Button>
+                    <Button
+                      variant={user.bloqueado ? "secondary" : "ghost"}
+                      onClick={() => {
+                        void updateBlocked(user, !user.bloqueado);
+                      }}
+                    >
+                      {user.bloqueado ? "Desbloquear" : "Bloquear"}
+                    </Button>
+                  </>
                 )}
               </div>
             </td>
@@ -310,6 +349,67 @@ export default function UsuariosPage() {
         ) : (
           <div className="text-sm text-black/50">No se pudo cargar el perfil.</div>
         )}
+      </Modal>
+
+      <Modal
+        open={!!passwordUser}
+        title={`Cambiar contraseña — ${passwordUser?.nombreCompleto ?? "Docente"}`}
+        onClose={() => {
+          setPasswordUser(null);
+          setNewPassword("");
+          setPasswordError("");
+        }}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setPasswordUser(null);
+                setNewPassword("");
+                setPasswordError("");
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={newPassword.length < 6 || passwordSaving}
+              onClick={() => {
+                void updateTeacherPassword();
+              }}
+            >
+              {passwordSaving ? "Guardando..." : "Guardar contraseña"}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="rounded-xl border border-black/10 bg-black/[0.015] p-4">
+            <div className="text-sm font-semibold text-black">{passwordUser?.nombreCompleto}</div>
+            <div className="mt-1 text-xs text-black/50">{passwordUser?.correo}</div>
+          </div>
+          <label className="block space-y-2">
+            <span className="text-xs font-semibold tracking-widest text-black/60">
+              NUEVA CONTRASEÑA
+            </span>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              minLength={6}
+              className="h-12 w-full rounded-xl border border-black/10 bg-white px-4 text-sm font-semibold text-black outline-none focus:border-uniclaretiana-yellow"
+              placeholder="Mínimo 6 caracteres"
+            />
+          </label>
+          <div className="rounded-xl border border-black/10 bg-black/[0.02] px-4 py-3 text-xs font-semibold text-black/55">
+            El docente deberá cambiar esta contraseña al iniciar sesión.
+          </div>
+          {passwordError ? (
+            <div className="rounded-xl border border-red-500/30 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {passwordError}
+            </div>
+          ) : null}
+        </div>
       </Modal>
     </div>
   );

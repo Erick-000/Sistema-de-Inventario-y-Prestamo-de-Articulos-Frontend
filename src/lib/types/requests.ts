@@ -41,5 +41,11 @@ export type LoanRequest = {
   adminNote?: string;
   returnCondition?: "OK" | "ISSUE";
   returnNote?: string;
+  actSignature?: {
+    dataUrl: string;
+    signerName: string;
+    signerId?: string;
+    signedAt: string;
+  };
   createdAt: string;
 };

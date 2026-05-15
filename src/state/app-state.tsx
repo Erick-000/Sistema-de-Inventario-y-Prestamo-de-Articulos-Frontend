@@ -43,6 +43,12 @@ type LoanDto = {
   notaAdmin?: string | null;
   returnCondition?: "OK" | "ISSUE" | null;
   returnNote?: string | null;
+  actaFirma?: {
+    dataUrl: string;
+    signerName: string;
+    signerId?: string | null;
+    signedAt: string;
+  } | null;
   createdAt?: string;
 };
 
@@ -363,6 +369,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       adminNote: l.notaAdmin ?? undefined,
       returnCondition: l.returnCondition ?? undefined,
       returnNote: l.returnNote ?? undefined,
+      actSignature: l.actaFirma
+        ? {
+            dataUrl: l.actaFirma.dataUrl,
+            signerName: l.actaFirma.signerName,
+            signerId: l.actaFirma.signerId ?? undefined,
+            signedAt: l.actaFirma.signedAt,
+          }
+        : undefined,
       createdAt: l.createdAt ?? new Date().toISOString(),
     }));
 

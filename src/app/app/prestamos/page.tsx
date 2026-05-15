@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/Badge";
+import { Button } from "@/components/Button";
 import { FilterPills } from "@/components/FilterPills";
 import { PageHeader } from "@/components/PageHeader";
 import { ConfirmModal } from "@/components/ConfirmModal";
@@ -9,17 +10,103 @@ import { RequestDetailsModal } from "@/components/RequestDetailsModal";
 import { SearchInput } from "@/components/SearchInput";
 import { Table } from "@/components/Table";
 import { IconLoans } from "@/components/Icons";
+import { Modal } from "@/components/Modal";
 import type { LoanRequest, LoanRequestStatus } from "@/lib/types/requests";
 import { useAppState } from "@/state/app-state";
 import { apiFetch } from "@/lib/api/client";
+import { getUser } from "@/lib/auth/session";
 import { formatDateISO } from "@/lib/ui/format";
 import {
   requestStatusLabel,
   requestStatusToBadgeVariant,
 } from "@/lib/ui/status";
-import { useMemo, useState } from "react";
+import { type PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Suspense } from "react";
+
+function SignaturePad({ onChange }: { onChange: (value: string) => void }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawing = useRef(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(rect.width * scale);
+    canvas.height = Math.floor(rect.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(scale, scale);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = "#111";
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+  }, []);
+
+  function point(event: PointerEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+
+  function emit() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    onChange(canvas.toDataURL("image/png"));
+  }
+
+  function clear() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    onChange("");
+  }
+
+  return (
+    <div className="space-y-2">
+      <canvas
+        ref={canvasRef}
+        className="h-44 w-full touch-none rounded-xl border border-black/10 bg-white shadow-inner"
+        onPointerDown={(event) => {
+          drawing.current = true;
+          event.currentTarget.setPointerCapture(event.pointerId);
+          const ctx = event.currentTarget.getContext("2d");
+          const pos = point(event);
+          ctx?.beginPath();
+          ctx?.moveTo(pos.x, pos.y);
+        }}
+        onPointerMove={(event) => {
+          if (!drawing.current) return;
+          const ctx = event.currentTarget.getContext("2d");
+          const pos = point(event);
+          ctx?.lineTo(pos.x, pos.y);
+          ctx?.stroke();
+        }}
+        onPointerUp={() => {
+          drawing.current = false;
+          emit();
+        }}
+        onPointerCancel={() => {
+          drawing.current = false;
+          emit();
+        }}
+      />
+      <div className="flex justify-end">
+        <Button variant="ghost" size="sm" onClick={clear}>
+          Limpiar firma
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function PrestamosContent() {
   const { state, reload } = useAppState();
@@ -62,6 +149,10 @@ function PrestamosContent() {
 
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [detailRequest, setDetailRequest] = useState<LoanRequest | null>(null);
+  const [actRequest, setActRequest] = useState<LoanRequest | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState("");
+  const [signatureSaving, setSignatureSaving] = useState(false);
+  const [signatureError, setSignatureError] = useState("");
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -85,76 +176,26 @@ function PrestamosContent() {
       .sort((a, b) => b.dueDate.localeCompare(a.dueDate));
   }, [state.requests, status, query, loanStatuses]);
 
-  function printLoanAct(request: LoanRequest) {
-    const code = `UIB-${request.id.slice(-6).toUpperCase()}`;
-    const itemsRows = request.items
-      .map(
-        (item) => `
-          <tr>
-            <td>${item.articleName}</td>
-            <td>${item.articleSerial ?? "Sin serial"}</td>
-            <td>${item.quantity}</td>
-          </tr>
-        `,
-      )
-      .join("");
-    const html = `
-      <!doctype html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <title>Acta de préstamo ${code}</title>
-          <style>
-            body { font-family: Arial, sans-serif; color: #111; margin: 32px; }
-            header { border-bottom: 2px solid #111; padding-bottom: 16px; margin-bottom: 24px; }
-            h1 { font-size: 20px; margin: 0; }
-            .muted { color: #555; font-size: 12px; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-            .box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-            th, td { border: 1px solid #ddd; padding: 10px; font-size: 13px; text-align: left; }
-            th { background: #f4f4f4; }
-            .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 72px; }
-            .line { border-top: 1px solid #111; padding-top: 8px; text-align: center; font-size: 12px; }
-            @media print { button { display: none; } body { margin: 20mm; } }
-          </style>
-        </head>
-        <body>
-          <button onclick="window.print()">Imprimir / Guardar PDF</button>
-          <header>
-            <h1>Acta de préstamo de artículos</h1>
-            <div class="muted">Código: ${code} · Generada: ${new Date().toLocaleString("es-CO")}</div>
-          </header>
-          <section class="grid">
-            <div class="box"><strong>Docente</strong><br/>${request.teacherName}</div>
-            <div class="box"><strong>Programa</strong><br/>${request.program || "No registrado"}</div>
-            <div class="box"><strong>Fecha de inicio</strong><br/>${formatDateISO(request.startDate)}</div>
-            <div class="box"><strong>Hora de entrega</strong><br/>${request.startTime ?? "No registrada"}</div>
-            <div class="box"><strong>Fecha límite</strong><br/>${formatDateISO(request.dueDate)}</div>
-            <div class="box"><strong>Hora de devolución</strong><br/>${request.endTime ?? "No registrada"}</div>
-            <div class="box"><strong>Estado</strong><br/>${requestStatusLabel(request.status)}</div>
-            <div class="box"><strong>ID interno</strong><br/>${request.id}</div>
-          </section>
-          <table>
-            <thead>
-              <tr><th>Artículo</th><th>Serial</th><th>Cantidad</th></tr>
-            </thead>
-            <tbody>${itemsRows}</tbody>
-          </table>
-          <p class="muted">
-            El docente declara recibir los artículos relacionados y se compromete a devolverlos en buen estado en la fecha indicada.
-          </p>
-          <section class="signatures">
-            <div class="line">Firma docente</div>
-            <div class="line">Firma responsable</div>
-          </section>
-        </body>
-      </html>
-    `;
-    const win = window.open("", "_blank", "width=900,height=700");
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
+  async function saveActSignature() {
+    if (!actRequest || !signatureDataUrl) return;
+    setSignatureSaving(true);
+    setSignatureError("");
+    try {
+      await apiFetch(`/api/loans/${actRequest.id}/sign-act`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          signatureDataUrl,
+          signerName: getUser()?.name ?? actRequest.teacherName,
+        }),
+      });
+      setSignatureDataUrl("");
+      setActRequest(null);
+      await reload();
+    } catch (err) {
+      setSignatureError(err instanceof Error ? err.message : "No se pudo guardar la firma");
+    } finally {
+      setSignatureSaving(false);
+    }
   }
 
   return (
@@ -233,9 +274,13 @@ function PrestamosContent() {
                 <button
                   type="button"
                   className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-black/70 hover:bg-black/[0.03]"
-                  onClick={() => printLoanAct(r)}
+                  onClick={() => {
+                    setActRequest(r);
+                    setSignatureDataUrl("");
+                    setSignatureError("");
+                  }}
                 >
-                  Acta
+                  {r.actSignature ? "Ver acta firmada" : "Firmar acta"}
                 </button>
               </div>
               <RequestAdminActions
@@ -273,7 +318,93 @@ function PrestamosContent() {
         onClose={() => setDetailRequest(null)}
       />
 
+      <Modal
+        open={!!actRequest}
+        title={actRequest?.actSignature ? "Acta firmada" : "Firmar acta"}
+        size="xl"
+        onClose={() => {
+          setActRequest(null);
+          setSignatureDataUrl("");
+          setSignatureError("");
+        }}
+        footer={
+          <>
+            {!actRequest?.actSignature ? (
+              <Button
+                variant="secondary"
+                disabled={!signatureDataUrl || signatureSaving}
+                onClick={() => {
+                  void saveActSignature();
+                }}
+              >
+                {signatureSaving ? "Guardando..." : "Guardar firma"}
+              </Button>
+            ) : null}
+          </>
+        }
+      >
+        {actRequest ? (
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 gap-3 rounded-xl border border-black/10 bg-black/[0.015] p-4 text-sm md:grid-cols-2">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">Docente</div>
+                <div className="mt-1 font-semibold text-black">{actRequest.teacherName}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">Código</div>
+                <div className="mt-1 font-mono text-xs text-black/70">UIB-{actRequest.id.slice(-6).toUpperCase()}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">Entrega</div>
+                <div className="mt-1 font-semibold text-black">{formatDateISO(actRequest.startDate)} · {actRequest.startTime ?? ""}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">Devolución</div>
+                <div className="mt-1 font-semibold text-black">{formatDateISO(actRequest.dueDate)} · {actRequest.endTime ?? ""}</div>
+              </div>
+            </div>
 
+            <div className="space-y-2">
+              {actRequest.items.map((item) => (
+                <div key={item.articleId} className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3 text-sm">
+                  <div>
+                    <div className="font-semibold text-black">{item.articleName}</div>
+                    <div className="text-xs text-black/50">{item.articleSerial ?? "Sin serial"}</div>
+                  </div>
+                  <span className="text-xs font-bold text-black/60">x{item.quantity}</span>
+                </div>
+              ))}
+            </div>
+
+            {actRequest.actSignature ? (
+              <div className="rounded-xl border border-black/10 bg-white p-4">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">Firma guardada</div>
+                <img
+                  src={actRequest.actSignature.dataUrl}
+                  alt="Firma guardada"
+                  className="mt-3 h-28 max-w-full object-contain"
+                />
+                <div className="mt-2 text-xs font-semibold text-black/50">
+                  {actRequest.actSignature.signerName} · {new Date(actRequest.actSignature.signedAt).toLocaleString("es-CO")}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-2 text-xs font-semibold tracking-widest text-black/60">FIRMA EN PANTALLA</div>
+                <div className="mb-3 rounded-xl border border-black/10 bg-black/[0.02] px-4 py-3 text-xs font-semibold text-black/55">
+                  Firma usando el mouse, el dedo en pantalla táctil o un lápiz digital compatible.
+                </div>
+                <SignaturePad onChange={setSignatureDataUrl} />
+                {signatureError ? (
+                  <div className="mt-2 rounded-xl border border-red-500/30 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    {signatureError}
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        ) : null}
+      </Modal>
 
       <ConfirmModal
         open={!!cancelId}
